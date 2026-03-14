@@ -27,11 +27,15 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
             "done"=>$data["done"]
         );
 
-        file_put_contents($file,json_encode($tasks));
+    }
 
-        echo json_encode(["status"=>"ok"]);
+    if($data["action"]=="delete"){
+
+        array_splice($tasks,$data["index"],1);
 
     }
+
+    file_put_contents($file,json_encode($tasks));
 
     exit;
 
@@ -52,8 +56,16 @@ if($_GET["action"]=="list"){
 
         $left=$t["hours"]-$t["done"];
 
+        $today=strtotime(date("Y-m-d"));
+        $deadline=strtotime($t["deadline"]);
+
+        $days=max(1,ceil(($deadline-$today)/86400));
+
+        $daily=round($left/$days,2);
+
         $t["progress"]=$progress;
         $t["left"]=$left;
+        $t["daily"]=$daily;
 
         $result[]=$t;
 
@@ -62,4 +74,5 @@ if($_GET["action"]=="list"){
     echo json_encode($result);
 
 }
+
 ?>
